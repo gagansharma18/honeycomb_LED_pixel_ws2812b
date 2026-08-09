@@ -410,17 +410,18 @@ function updateTelemetry() {
 // --------------------------------------------------------------------------
 const CadExporter = {
   generateSinglePixelOpenScad(options = {}) {
-    const r = options.pixel_radius || 15.0;
-    const h = options.tile_height || 10.0;
+    const r = options.pixel_radius || 16.0;
+    const h = options.tile_height || 10.5;
     const wall = options.wall_thickness || 1.6;
     const baseFloor = options.base_floor || 1.8;
-    const ledTray = options.led_tray_height || 4.0;
-    const pogoDia = options.pogo_socket_dia || 3.1;
-    const pogoPitch = options.pogo_contact_pitch || 4.5;
+    const ledChamberHeight = options.led_chamber_height || 4.5;
+    const stopperRadius = options.stopper_radius || 10.5;
+    const pinHoleDia = options.pin_hole_dia || 1.25;
+    const pinPitch = options.pin_contact_pitch || 2.54;
 
     let scad = `// ==========================================================================\n`;
-    scad += `// Honeycomb Pixel — 3-Wire Magnetic Single-Pixel Hexagon Tile\n`;
-    scad += `// Parametric 3D OpenSCAD Model\n`;
+    scad += `// Honeycomb Pixel — 3-Pin Female Header Single-Pixel Hexagon Tile\n`;
+    scad += `// Parametric 3D OpenSCAD Model with Inner Stopper Walls & Pin Holes\n`;
     scad += `// Repository: https://github.com/gagansharma18/honeycomb_LED_pixel_ws2812b\n`;
     scad += `// ==========================================================================\n\n`;
 
@@ -428,30 +429,37 @@ const CadExporter = {
     scad += `tile_height         = ${h.toFixed(2)};\n`;
     scad += `wall_thickness      = ${wall.toFixed(2)};\n`;
     scad += `base_floor          = ${baseFloor.toFixed(2)};\n`;
-    scad += `led_tray_height     = ${ledTray.toFixed(2)};\n`;
-    scad += `pogo_socket_dia     = ${pogoDia.toFixed(2)};\n`;
-    scad += `pogo_contact_pitch  = ${pogoPitch.toFixed(2)};\n`;
-    scad += `led_pocket_radius   = 6.50;\n`;
+    scad += `stopper_radius      = ${stopperRadius.toFixed(2)};\n`;
+    scad += `stopper_wall_thick  = 1.60;\n`;
+    scad += `led_chamber_height  = ${ledChamberHeight.toFixed(2)};\n`;
+    scad += `header_pitch        = ${pinPitch.toFixed(2)};\n`;
+    scad += `header_body_width   = 8.20;\n`;
+    scad += `header_body_height  = 3.00;\n`;
+    scad += `pin_hole_dia        = ${pinHoleDia.toFixed(2)};\n`;
+    scad += `pin_contact_pitch   = ${pinPitch.toFixed(2)};\n`;
     scad += `diffuser_recess     = 1.50;\n`;
     scad += `diffuser_thickness  = 1.40;\n\n`;
 
-    scad += `r_outer = pixel_radius;\n`;
-    scad += `r_inner = pixel_radius - wall_thickness;\n`;
-    scad += `a_outer = r_outer * sqrt(3)/2;\n`;
-    scad += `a_inner = r_inner * sqrt(3)/2;\n\n`;
+    scad += `r_outer   = pixel_radius;\n`;
+    scad += `r_outer_in= pixel_radius - wall_thickness;\n`;
+    scad += `a_outer   = r_outer * sqrt(3)/2;\n`;
+    scad += `a_stopper = stopper_radius * sqrt(3)/2;\n\n`;
 
     scad += `module single_pixel_base() {\n`;
     scad += `  difference() {\n`;
     scad += `    rotate([0, 0, 30]) cylinder(r = r_outer, h = tile_height, $fn = 6);\n`;
-    scad += `    translate([0, 0, led_tray_height]) rotate([0, 0, 30]) cylinder(r = r_inner, h = tile_height + 1, $fn = 6);\n`;
+    scad += `    translate([0, 0, led_chamber_height]) rotate([0, 0, 30]) cylinder(r = r_outer_in, h = tile_height + 1, $fn = 6);\n`;
     scad += `    translate([0, 0, tile_height - diffuser_recess]) rotate([0, 0, 30]) cylinder(r = r_outer - wall_thickness/2, h = diffuser_recess + 0.1, $fn = 6);\n`;
-    scad += `    translate([0, 0, base_floor]) cylinder(r = led_pocket_radius, h = led_tray_height - base_floor + 0.1, $fn = 6);\n\n`;
+    scad += `    translate([0, 0, base_floor]) rotate([0, 0, 30]) cylinder(r = stopper_radius - stopper_wall_thick, h = led_chamber_height - base_floor + 0.1, $fn = 6);\n\n`;
     scad += `    for (angle = [0 : 60 : 300]) {\n`;
     scad += `      rotate([0, 0, angle]) {\n`;
-    scad += `        translate([a_outer, 0, tile_height / 2]) {\n`;
-    scad += `          translate([0, -pogo_contact_pitch, 0]) rotate([0, 90, 0]) cylinder(d = pogo_socket_dia, h = 3.0, center = true, $fn = 24);\n`;
-    scad += `          translate([0, 0, 0]) rotate([0, 90, 0]) cylinder(d = pogo_socket_dia, h = 3.0, center = true, $fn = 24);\n`;
-    scad += `          translate([0, pogo_contact_pitch, 0]) rotate([0, 90, 0]) cylinder(d = pogo_socket_dia, h = 3.0, center = true, $fn = 24);\n`;
+    scad += `        translate([a_outer - (a_outer - a_stopper)/2, 0, (base_floor + led_chamber_height) / 2]) {\n`;
+    scad += `          cube([a_outer - a_stopper + 0.1, header_body_width, header_body_height], center = true);\n`;
+    scad += `        }\n`;
+    scad += `        translate([a_stopper, 0, (base_floor + led_chamber_height) / 2]) {\n`;
+    scad += `          translate([0, -pin_contact_pitch, 0]) rotate([0, 90, 0]) cylinder(d = pin_hole_dia, h = 6.0, center = true, $fn = 24);\n`;
+    scad += `          translate([0, 0, 0]) rotate([0, 90, 0]) cylinder(d = pin_hole_dia, h = 6.0, center = true, $fn = 24);\n`;
+    scad += `          translate([0, pin_contact_pitch, 0]) rotate([0, 90, 0]) cylinder(d = pin_hole_dia, h = 6.0, center = true, $fn = 24);\n`;
     scad += `        }\n`;
     scad += `      }\n`;
     scad += `    }\n`;

@@ -18,8 +18,9 @@ const scadContent = fs.readFileSync(scadPath, 'utf8');
 
 const requiredScadVars = [
   'pixel_radius',
-  'pogo_socket_dia',
-  'pogo_contact_pitch',
+  'stopper_radius',
+  'stopper_wall_thick',
+  'pin_hole_dia',
   'single_pixel_base',
   'diffuser_lid'
 ];
