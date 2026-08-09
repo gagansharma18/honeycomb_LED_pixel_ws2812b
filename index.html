@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Honeycomb Pixel — 3-Wire Magnetic Interconnect Hexagon Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+  <!-- Top Navigation Header -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo-container">
+        <svg class="logo-icon" viewBox="0 0 32 32" width="28" height="28">
+          <polygon points="16,2 29,9.5 29,24.5 16,32 3,24.5 3,9.5" fill="none" stroke="url(#hex-grad)" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="16" cy="17" r="4" fill="url(#hex-grad)"/>
+          <defs>
+            <linearGradient id="hex-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00f2fe" />
+              <stop offset="100%" stop-color="#4facfe" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="logo-text">
+          <span class="brand-name">Honeycomb<span class="highlight">Pixel</span></span>
+          <span class="version-tag">v1.0 (Magnetic 3-Wire)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-right" style="display: flex; gap: 8px;">
+      <button class="btn btn-secondary" id="btnProjectSave" title="Save Layout JSON">Save</button>
+      <button class="btn btn-primary" id="btnExport" title="Export WLED Map & OpenSCAD 3D Model">Export WLED Map</button>
+    </div>
+  </header>
+
+  <!-- Application Layout -->
+  <div class="app-layout">
+    <!-- Left Tools Sidebar -->
+    <aside class="sidebar left-sidebar">
+      <section class="panel-section">
+        <div class="section-title">
+          <span>Editor Tools</span>
+        </div>
+        <div class="section-content">
+          <div class="tool-grid">
+            <button class="tool-btn active" data-tool="add" id="toolAdd">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              <span>Add Pixel</span>
+            </button>
+            <button class="tool-btn" data-tool="select" id="toolSelect">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
+              <span>Select</span>
+            </button>
+            <button class="tool-btn" data-tool="delete" id="toolDelete">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <span>Delete</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel-section">
+        <div class="section-title">
+          <span>🧲 Magnetic Contacts Info</span>
+        </div>
+        <div class="section-content" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+          <p>Each single-pixel hexagon tile features <strong>3 magnetic contacts per face</strong> on all 6 faces:</p>
+          <ul style="margin-left: 16px; margin-top: 6px;">
+            <li><strong>Pin 1</strong>: VCC (+5V Power)</li>
+            <li><strong>Pin 2</strong>: DATA (Signal)</li>
+            <li><strong>Pin 3</strong>: GND (Ground)</li>
+          </ul>
+        </div>
+      </section>
+    </aside>
+
+    <!-- Center Canvas Viewport -->
+    <main class="canvas-viewport" id="viewport">
+      <div class="canvas-toolbar">
+        <div class="btn-group">
+          <button class="icon-btn" id="btnZoomIn" title="Zoom In">+</button>
+          <button class="icon-btn" id="btnZoomOut" title="Zoom Out">-</button>
+          <button class="icon-btn" id="btnResetView" title="Recenter View">⟲</button>
+        </div>
+      </div>
+      <canvas id="mainCanvas"></canvas>
+    </main>
+
+    <!-- Right Telemetry Sidebar -->
+    <aside class="sidebar right-sidebar">
+      <section class="panel-section">
+        <div class="section-title">
+          <span>Hardware & Power Estimator</span>
+        </div>
+        <div class="section-content" style="font-size: 0.85rem;">
+          <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-subtle);">
+            <span>Single Pixel Count:</span>
+            <span style="color: var(--primary-cyan); font-weight: 700;" id="statPixelCount">1 Tile</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border-subtle);">
+            <span>Max Power (5V 100% White):</span>
+            <span style="color: var(--accent-amber); font-weight: 700;" id="statMaxPower">0.30 W (0.06 A)</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
